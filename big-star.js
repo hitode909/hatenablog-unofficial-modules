@@ -34,9 +34,7 @@
       src: user_icon($star[0].href.match(/hatena\.ne\.jp\/([^\/]+)\/?/)[1])
     });
     $star_image = $('<img>');
-    $star_image.addClass('hatena-big-star-star', {
-      src: $star_src
-    });
+    $star_image.addClass('hatena-big-star-star');
     $star_image.attr({
       src: $star_src
     });
@@ -57,7 +55,13 @@
   };
   filter = throttle(function() {
     $('span.hatena-star-star-container a').each(function() {
-      return replaceStar($(this));
+      try {
+        return replaceStar($(this));
+      } catch (error) {
+        if (console) {
+          return console.log(error);
+        }
+      }
     });
     $('.hatena-star-star-container').each(function() {
       return replaceButton($(this));

@@ -32,7 +32,6 @@ do ->
 
     $star_image = $('<img>')
     $star_image.addClass 'hatena-big-star-star'
-      src: $star_src
     $star_image.attr
       src: $star_src
 
@@ -52,7 +51,10 @@ do ->
 
   filter = throttle ->
     $('span.hatena-star-star-container a').each ->
-      replaceStar $(this)
+      try
+        replaceStar $(this)
+      catch error
+        console.log(error) if console
 
     $('.hatena-star-star-container').each ->
       replaceButton $(this)

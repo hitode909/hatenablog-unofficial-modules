@@ -1,4 +1,4 @@
-var appendBar, appendBarAtTime, appendEntry, autoloader, checkScroll, collectCalendar, debounce, entryFromScrollTop, entryFromTime, executeByQueue, extractPath, fetchYear, fetchedHash, formatDate, keyWithPrefix, later, main, roundEpoch, scrollByLocation, scrollToEntry, selectEntryByUUID, setTip, showEntries, throttle, updateScrollBar, updateStars, waitForLoadImages, _tipTimer;
+var appendEntry, autoloader, checkScroll, collectCalendar, debounce, entryFromScrollTop, entryFromTime, executeByQueue, extractPath, fetchYear, fetchedHash, formatDate, keyWithPrefix, later, main, roundEpoch, scrollByLocation, scrollToEntry, showEntries, throttle, updateStars, waitForLoadImages;
 later = function(func) {
   return setTimeout(func, 0);
 };
@@ -33,43 +33,6 @@ roundEpoch = function(epoch) {
   date = new Date(epoch * 1000);
   return Math.floor(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() / 1000);
 };
-appendBar = function(x, css) {
-  var bar;
-  bar = $('<div>').attr({
-    "class": 'calendar-bar'
-  }).css({
-    left: x
-  });
-  if (css) {
-    bar.css(css);
-  }
-  bar.appendTo('#calendar');
-  return bar;
-};
-appendBarAtTime = function(created, css) {
-  var date_from, date_now;
-  date_from = new Date(2011, 11 - 1, 7);
-  date_now = new Date();
-  return appendBar("" + ((created - date_from) / (date_now - date_from) * 100) + "%", css);
-};
-selectEntryByUUID = function(uuid) {
-  var left;
-  $(".calendar-bar.selected").removeClass("selected");
-  $(".calendar-bar[data-uuid=\"" + uuid + "\"]").addClass('selected');
-  if (!$(".calendar-bar.selected").length) {
-    return;
-  }
-  left = $(".calendar-bar.selected").position().left - $("#scroll-bar").width() / 2;
-  if (left < 3) {
-    left = 3;
-  }
-  if (left > 550 - 13) {
-    left = 550 - 13;
-  }
-  return $("#scroll-bar").css({
-    left: left
-  });
-};
 throttle = function(fn, delay) {
   var timer;
   timer = null;
@@ -102,19 +65,18 @@ debounce = function (func, threshold, execAsap) {
         timeout = setTimeout(delayed, threshold || 100);
     };
 };
-checkScroll = debounce(function() {
-  var entry, top_before;
+checkScroll = function(job) {
+  var entry, top_after, top_before;
   entry = $('#main-inner article:last');
-  if (!entry.length) {
+  if (!(entry.length > 0)) {
+    job();
     return;
   }
   top_before = entry.position().top;
-  return later(function() {
-    var top_after;
-    top_after = entry.position().top;
-    return window.scrollBy(0, top_after - top_before);
-  });
-}, 100, true);
+  job();
+  top_after = entry.position().top;
+  return window.scrollBy(0, top_after - top_before);
+};
 updateStars = debounce(function() {
   Hatena.Locale.updateTimestamps(document.body);
   $(document.body).find('span.hatena-star-comment-container, span.hatena-star-star-container').remove();
@@ -134,17 +96,6 @@ scrollToEntry = debounce(function(entry) {
     }, 300);
   }
 });
-updateScrollBar = function() {
-  var created, entry;
-  entry = entryFromScrollTop();
-  if (!entry) {
-    return;
-  }
-  selectEntryByUUID(entry.attr('data-uuid'));
-  created = new Date(entry.find('time').attr('datetime'));
-  setTip(formatDate(created));
-  return autoloader();
-};
 autoloader = throttle(function() {
   var created, entry;
   if ($(window).scrollTop() <= 0) {
@@ -165,25 +116,6 @@ autoloader = throttle(function() {
     return showEntries(created.getTime() / 1000 + 3600 * 24 * 3);
   }
 }, 500);
-_tipTimer = null;
-setTip = function(text) {
-  var tip;
-  tip = $('#calendar-container #tip');
-  if (tip.text() === text) {
-    return;
-  }
-  tip.text(text).stop().css({
-    opacity: 1
-  });
-  if (_tipTimer) {
-    clearTimeout(_tipTimer);
-  }
-  return _tipTimer = setTimeout(function() {
-    return tip.animate({
-      opacity: 0
-    }, 1500);
-  }, 10000);
-};
 entryFromTime = function(time) {
   var date, found, found_created;
   date = new Date(time);
@@ -246,10 +178,6 @@ waitForLoadImages = function(element, callback) {
 scrollByLocation = function() {
   var link, pathname;
   pathname = location.pathname;
-  if (pathname === "/") {
-    scrollToEntry($('article:first'));
-    return;
-  }
   link = $(".entry-footer-time a[href=\"" + pathname + "\"]");
   if (!link.length) {
     return;
@@ -257,7 +185,7 @@ scrollByLocation = function() {
   return scrollToEntry(link.parents('article'));
 };
 appendEntry = function(entry) {
-  var bar, entry_created, entry_old, entry_old_created, entry_recent, entry_recent_created, title, uuid;
+  var entry_created, entry_old, entry_old_created, entry_recent, entry_recent_created, title, uuid;
   entry = $(entry);
   uuid = entry.attr('data-uuid');
   entry_created = new Date(entry.find('time').attr('datetime'));
@@ -292,26 +220,20 @@ appendEntry = function(entry) {
     entry.remove();
     return;
   }
-  bar = appendBarAtTime(entry_created);
-  bar.attr({
-    'data-uuid': uuid
-  });
   later(function() {
     return updateStars();
   });
-  checkScroll();
-  later(function() {
-    return updateScrollBar();
+  return checkScroll(function() {
+    if (entry_old) {
+      entry_old.after(entry);
+      return;
+    }
+    if (entry_recent) {
+      entry_recent.before(entry);
+      return;
+    }
+    return $('#main-inner').prepend(entry);
   });
-  if (entry_old) {
-    entry_old.after(entry);
-    return;
-  }
-  if (entry_recent) {
-    entry_recent.before(entry);
-    return;
-  }
-  return $('#main-inner').prepend(entry);
 };
 fetchedHash = {};
 showEntries = function(epoch) {
@@ -422,7 +344,7 @@ collectCalendar = function() {
   return deferred.promise();
 };
 main = function() {
-  var articles, calendar, container, module_dummy, scrollBar, tip;
+  var articles, module_dummy;
   if (Hatena && Hatena.Star) {
     Hatena.Star.SiteConfig = {
       entryNodes: {
@@ -439,52 +361,6 @@ main = function() {
   }).css({
     display: 'none'
   }).appendTo($('body'));
-  container = $('<div>').attr({
-    id: 'calendar-container'
-  }).css({
-    display: 'none'
-  });
-  calendar = $('<div>').attr({
-    id: 'calendar'
-  });
-  container.append(calendar);
-  tip = $('<div>').attr({
-    id: 'tip'
-  });
-  container.append(tip);
-  $('#container').append(container);
-  calendar.click(function(event) {
-    var date_from, date_now, entry, path, time_selected, width, x;
-    width = container.width();
-    x = event.clientX - container.position().left;
-    date_from = new Date(2011, 11 - 1, 7);
-    date_now = new Date();
-    time_selected = date_from.getTime() + (date_now.getTime() - date_from.getTime()) * (x / width);
-    entry = entryFromTime(time_selected);
-    path = extractPath(entry.find('.entry-footer-time a').attr('href'));
-    history.pushState(path, path, path);
-    return scrollToEntry(entry);
-  });
-  calendar.mousemove(throttle(function(event) {
-    var date_from, date_now, date_selected, date_selected_3days_up, time_selected, time_selected_3days_up, width, x;
-    width = container.width();
-    x = event.clientX - container.position().left;
-    date_from = new Date(2011, 11 - 1, 7);
-    date_now = new Date();
-    time_selected = date_from.getTime() + (date_now.getTime() - date_from.getTime()) * (x / width);
-    time_selected_3days_up = date_from.getTime() + (date_now.getTime() - date_from.getTime()) * (x / width) + 3600 * 24 * 1000 * 3;
-    date_selected = new Date(time_selected);
-    date_selected_3days_up = new Date(time_selected_3days_up);
-    setTip(formatDate(date_selected));
-    return showEntries(Math.floor(date_selected_3days_up.getTime() / 1000));
-  }));
-  scrollBar = $('<div>').attr({
-    id: 'scroll-bar'
-  });
-  calendar.append(scrollBar);
-  $(window).bind('scroll', throttle(function(event) {
-    return updateScrollBar();
-  }));
   articles = [];
   $('article').each(function() {
     var entry;
@@ -495,13 +371,10 @@ main = function() {
   $.each(articles, function() {
     return appendEntry(this);
   });
-  setTimeout(function() {
-    return scrollByLocation();
-  }, 100);
   module_dummy = $('<div>').addClass('hatena-module').addClass('hatena-module-profile');
   $('.hatena-follow-button-box').appendTo(module_dummy);
   module_dummy.appendTo($('#blog-title-inner'));
-  $('body').delegate('.entry-footer-time a', 'click', function(event) {
+  $('body').delegate('.entry-footer-time a, h1.entry-title a', 'click', function(event) {
     var path;
     if (!(history && history.pushState)) {
       return true;
@@ -532,9 +405,12 @@ main = function() {
   $(window).bind('popstate', function(event) {
     return scrollByLocation();
   });
-  return setTimeout(function() {
+  setTimeout(function() {
     return updateStars();
   }, 1000);
+  return $(window).bind('scroll', function() {
+    return autoloader();
+  });
 };
 main();
 window.scrollBy(0, 1);

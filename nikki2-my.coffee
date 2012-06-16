@@ -29,35 +29,6 @@ roundEpoch = (epoch) ->
   date = new Date(epoch * 1000)
   Math.floor(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() / 1000)
 
-appendBar = (x, css) ->
-  bar = $('<div>')
-  .attr
-    class: 'calendar-bar'
-  .css
-    left: x
-
-  bar.css(css) if css
-
-  bar.appendTo('#calendar')
-
-  bar
-
-appendBarAtTime = (created, css) ->
-  date_from = new Date(2011, 11-1, 7)
-  date_now = new Date()
-
-  appendBar("#{(created - date_from) / (date_now - date_from) * 100}%", css)
-
-selectEntryByUUID = (uuid) ->
-  $(".calendar-bar.selected").removeClass("selected")
-  $(".calendar-bar[data-uuid=\"#{uuid}\"]").addClass('selected')
-  return unless $(".calendar-bar.selected").length
-  left = $(".calendar-bar.selected").position().left - $("#scroll-bar").width() / 2
-  left = 3 if left < 3
-  left = 550 - 13 if left > 550-13
-  $("#scroll-bar").css
-    left: left
-
 throttle = (fn, delay) ->
   timer = null
   ->
@@ -87,14 +58,19 @@ debounce = `function (func, threshold, execAsap) {
 }`
 
 # 画面のより下の途中に入るとおかしくなるのでは
-checkScroll = debounce ->
+checkScroll = (job) ->
+
   entry = $('#main-inner article:last')
-  return unless entry.length
+
+  unless entry.length > 0
+    job()
+    return
+
   top_before = entry.position().top
-  later ->
-    top_after = entry.position().top
-    window.scrollBy(0, top_after - top_before)
-, 100, true
+  job()
+  top_after = entry.position().top
+  # console.log "scroll #{top_after - top_before}"
+  window.scrollBy(0, top_after - top_before)
 
 updateStars = debounce ->
   Hatena.Locale.updateTimestamps(document.body)
@@ -110,14 +86,6 @@ scrollToEntry = debounce (entry) ->
   else
     $('html,body').animate({ scrollTop: top }, 300)
 
-updateScrollBar = ->
-  entry = entryFromScrollTop()
-  return unless entry
-  selectEntryByUUID(entry.attr('data-uuid'))
-  created = new Date(entry.find('time').attr('datetime'))
-  setTip(formatDate(created))
-  autoloader()
-
 autoloader = throttle ->
   if $(window).scrollTop() <= 0
     entry = $('#main-inner article:first')
@@ -132,25 +100,6 @@ autoloader = throttle ->
     created = new Date(entry.find('time').attr('datetime'))
     showEntries(created.getTime() / 1000 + 3600*24*3)
 ,500
-
-_tipTimer = null
-setTip = (text) ->
-  tip = $('#calendar-container #tip')
-  return if tip.text() == text
-
-  tip
-  .text(text)
-  .stop()
-  .css
-    opacity: 1
-
-  clearTimeout(_tipTimer) if _tipTimer
-
-  _tipTimer = setTimeout ->
-    tip.animate
-      opacity: 0
-    , 1500
-  ,10000
 
 entryFromTime = (time) ->
   date = new Date(time)
@@ -197,6 +146,7 @@ waitForLoadImages = (element, callback) ->
   images.each ->
     image = $(this)
     image.load ->
+      # console.log("image loaded #{image[0].width} x #{image[0].height}")
       count++
       if count == images.length
         callback(element)
@@ -204,9 +154,9 @@ waitForLoadImages = (element, callback) ->
 scrollByLocation = ->
   pathname = location.pathname
 
-  if pathname == "/"
-    scrollToEntry($('article:first'))
-    return
+  # if pathname == "/"
+  #   scrollToEntry($('article:first'))
+  #   return
 
   link = $(".entry-footer-time a[href=\"#{pathname}\"]")
   return unless link.length
@@ -248,25 +198,20 @@ appendEntry = (entry) ->
     entry.remove()
     return
 
-  bar = appendBarAtTime(entry_created)
-  bar.attr
-    'data-uuid': uuid
   later ->
     updateStars()
 
-  checkScroll()
-  later ->
-    updateScrollBar()
+  checkScroll ->
 
-  if entry_old
-    entry_old.after(entry)
-    return
+    if entry_old
+      entry_old.after(entry)
+      return
 
-  if entry_recent
-    entry_recent.before(entry)
-    return
+    if entry_recent
+      entry_recent.before(entry)
+      return
 
-  $('#main-inner').prepend(entry)
+    $('#main-inner').prepend(entry)
 
 fetchedHash = {}
 showEntries = (epoch) ->
@@ -375,58 +320,6 @@ main = ->
     display: 'none'
   .appendTo($('body'))
 
-  container = $('<div>')
-  .attr
-    id: 'calendar-container'
-  .css
-    display: 'none'
-
-  calendar = $('<div>')
-  .attr
-    id: 'calendar'
-
-  container.append(calendar)
-
-  tip = $('<div>')
-  .attr
-    id: 'tip'
-  container.append(tip)
-
-  $('#container').append(container)
-
-  calendar.click (event) ->
-    width = container.width()
-    x = event.clientX - container.position().left
-    date_from = new Date(2011, 11-1, 7)
-    date_now = new Date()
-    time_selected = date_from.getTime() + (date_now.getTime() - date_from.getTime()) * (x / width) #
-
-    entry = entryFromTime(time_selected)
-    path = extractPath(entry.find('.entry-footer-time a').attr('href'))
-    history.pushState(path, path, path)
-    scrollToEntry(entry)
-
-  calendar.mousemove throttle (event) ->
-    width = container.width()
-    x = event.clientX - container.position().left
-    date_from = new Date(2011, 11-1, 7)
-    date_now = new Date()
-    time_selected = date_from.getTime() + (date_now.getTime() - date_from.getTime()) * (x / width) #
-    time_selected_3days_up = date_from.getTime() + (date_now.getTime() - date_from.getTime()) * (x / width) + 3600*24*1000*3 #
-    date_selected = new Date(time_selected)
-    date_selected_3days_up = new Date(time_selected_3days_up)
-    setTip(formatDate(date_selected))
-
-    showEntries(Math.floor(date_selected_3days_up.getTime() / 1000))
-
-  scrollBar = $('<div>')
-  .attr
-    id: 'scroll-bar'
-
-  calendar.append(scrollBar)
-
-  $(window).bind 'scroll', throttle (event) ->
-    updateScrollBar()
 
   articles = []
   $('article').each ->
@@ -437,16 +330,17 @@ main = ->
   $.each articles, ->
     appendEntry(this)
 
-  setTimeout ->
-    scrollByLocation()
-  ,100
+  # setTimeout ->
+  #   scrollByLocation()
+  # ,100
 
   module_dummy = $('<div>').addClass('hatena-module').addClass('hatena-module-profile')
 
   $('.hatena-follow-button-box').appendTo(module_dummy)
   module_dummy.appendTo($('#blog-title-inner'))
 
-  $('body').delegate '.entry-footer-time a', 'click', (event) ->
+
+  $('body').delegate '.entry-footer-time a, h1.entry-title a', 'click', (event) ->
     return true unless history && history.pushState
     path = extractPath(this.href)
     history.pushState(path, path, path)
@@ -472,6 +366,11 @@ main = ->
   setTimeout ->
     updateStars()
   ,1000
+
+  $(window).bind 'scroll', ->
+    autoloader()
+
+
 
 
 main()

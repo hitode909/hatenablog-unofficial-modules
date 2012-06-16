@@ -168,6 +168,11 @@ appendEntry = (entry) ->
   uuid = entry.attr('data-uuid')
   entry_created = new Date(entry.find('time').attr('datetime'))
 
+  # 何日前っていうの消すので日付をパーマリンクにする
+  entry.find('header .date a').attr
+    href: entry.find('.entry-footer-time a').attr('href')
+
+  # 四角は出さない
   title = entry.find('h1.entry-title')
   if title.text() == '■'
     title.css

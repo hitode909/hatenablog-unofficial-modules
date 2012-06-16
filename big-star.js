@@ -68,10 +68,24 @@
   });
   filter();
   override = function() {
-    Hatena.Star.Pallet.PALLET_STYLE += '-webkit-transform: scale(2.0); -webkit-transform-origin: 0% 0%; background: white; margin-top: 22px;';
+    var k, style, v;
+    style = {
+      '-webkit-transform': 'scale(2.0)',
+      '-webkit-transform-origin': '0% 0%',
+      '-moz-transform': 'scale(2.0)',
+      '-moz-transform-origin': '0% 0%',
+      '-o-transform': 'scale(2.0)',
+      '-o-transform-origin': '0% 0%',
+      'background': 'white',
+      'margin-top': '22px',
+      'margin-left': '2px'
+    };
+    for (k in style) {
+      v = style[k];
+      Hatena.Star.Pallet.PALLET_STYLE += "" + k + ": " + v + "; ";
+    }
     return delete Ten.SubWindow._baseStyle.backgroundColor;
   };
-  override();
   bindEvents = function() {
     $(document.body).bind('DOMNodeInserted', function() {
       return filter();

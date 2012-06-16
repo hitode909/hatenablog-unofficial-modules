@@ -63,10 +63,21 @@ do ->
   filter()
 
   override = ->
-    Hatena.Star.Pallet.PALLET_STYLE += '-webkit-transform: scale(2.0); -webkit-transform-origin: 0% 0%; background: white; margin-top: 22px;'
-    delete Ten.SubWindow._baseStyle.backgroundColor
+    style =
+      '-webkit-transform': 'scale(2.0)'
+      '-webkit-transform-origin': '0% 0%'
+      '-moz-transform': 'scale(2.0)'
+      '-moz-transform-origin': '0% 0%'
+      '-o-transform': 'scale(2.0)'
+      '-o-transform-origin': '0% 0%'
+      'background': 'white'
+      'margin-top': '22px'
+      'margin-left': '2px'
 
-  override()
+    for k, v of style
+      Hatena.Star.Pallet.PALLET_STYLE += "#{k}: #{v}; "
+
+    delete Ten.SubWindow._baseStyle.backgroundColor
 
   bindEvents = ->
     $(document.body).bind 'DOMNodeInserted', ->

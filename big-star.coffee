@@ -79,6 +79,16 @@ do ->
     for k, v of style
       Hatena.Star.Pallet.PALLET_STYLE += "#{k}: #{v}; "
 
+    Hatena.Star.NameScreen.prototype._baseStyle =
+        color: '#000'
+        position: 'absolute'
+        display: 'none'
+        zIndex: 10002
+        left: 0
+        top: 0
+        backgroundColor: '#fff'
+        border: '1px solid #bbb'
+
     delete Ten.SubWindow._baseStyle.backgroundColor
 
   bindEvents = ->

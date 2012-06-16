@@ -1166,6 +1166,7 @@ a.keyword {
     background:white;
     position:fixed;
     z-index:1000;
+    top: 0px;
 }
 
 #blog-title-inner h1#title {
@@ -1178,7 +1179,8 @@ a.keyword {
     position: absolute;
     right: 0px;
     bottom: 0px;
-    padding-bottom:10px;
+    padding-bottom:0px;
+    margin-bottom: 0px;
 }
 
 .categories {

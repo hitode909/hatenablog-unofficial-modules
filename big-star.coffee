@@ -12,7 +12,7 @@ do ->
       timer = setTimeout ->
         timer = null
         fn.apply context, args
-      , delay || 100
+      , delay || 50
 
   replaceStar = ($star) ->
     return if $star.prop 'data-hatena-big-star-init'
@@ -61,6 +61,12 @@ do ->
       replaceCommentButton $(this)
 
   filter()
+
+  override = ->
+    Hatena.Star.Pallet.PALLET_STYLE += '-webkit-transform: scale(2.0); -webkit-transform-origin: 0% 0%; background: white; margin-top: 22px;'
+    delete Ten.SubWindow._baseStyle.backgroundColor
+
+  override()
 
   bindEvents = ->
     $(document.body).bind 'DOMNodeInserted', ->

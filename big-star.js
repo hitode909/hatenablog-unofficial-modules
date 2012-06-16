@@ -1,5 +1,5 @@
 (function() {
-  var bindEvents, filter, replaceButton, replaceCommentButton, replaceStar, throttle, user_icon;
+  var bindEvents, filter, override, replaceButton, replaceCommentButton, replaceStar, throttle, user_icon;
   user_icon = function(name) {
     return "http://www.st-hatena.com/users/" + (encodeURI(name.slice(0, 2))) + "/" + (encodeURI(name)) + "/profile_l.gif";
   };
@@ -16,7 +16,7 @@
       return timer = setTimeout(function() {
         timer = null;
         return fn.apply(context, args);
-      }, delay || 100);
+      }, delay || 50);
     };
   };
   replaceStar = function($star) {
@@ -67,6 +67,11 @@
     });
   });
   filter();
+  override = function() {
+    Hatena.Star.Pallet.PALLET_STYLE += '-webkit-transform: scale(2.0); -webkit-transform-origin: 0% 0%; background: white; margin-top: 22px;';
+    return delete Ten.SubWindow._baseStyle.backgroundColor;
+  };
+  override();
   bindEvents = function() {
     $(document.body).bind('DOMNodeInserted', function() {
       return filter();

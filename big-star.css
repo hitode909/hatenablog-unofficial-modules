@@ -1,5 +1,5 @@
 .hatena-star-star-container {
-    font-size: 32px;
+    font-size: 18px;
 }
 
 .hatena-star-comment-button {
@@ -10,7 +10,13 @@
 .hatena-star-add-button {
     width: 32px;
     height: 32px;
+    margin: 1px !important;
 }
+
+.hatena-star-add-button-image {
+    background-image: url(http://cdn.www.st-hatena.com/images/one/touch/star_button_small2@2x.png);
+}
+
 
 .hatena-big-star-star-container {
     display: inline-block;

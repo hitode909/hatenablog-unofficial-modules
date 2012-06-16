@@ -1,7 +1,7 @@
 (function() {
   var bindEvents, filter, override, replaceButton, replaceCommentButton, replaceStar, throttle, user_icon;
   user_icon = function(name) {
-    return "http://www.st-hatena.com/users/" + (encodeURI(name.slice(0, 2))) + "/" + (encodeURI(name)) + "/profile_l.gif";
+    return "http://www.hatena.ne.jp/users/" + (encodeURI(name.slice(0, 2))) + "/" + (encodeURI(name)) + "/profile.gif";
   };
   throttle = function(fn, delay) {
     var timer;
@@ -80,25 +80,28 @@
       '-moz-transform-origin': '0% 0%',
       '-o-transform': 'scale(2.0)',
       '-o-transform-origin': '0% 0%',
-      'background': 'white',
-      'margin-top': '22px',
-      'margin-left': '2px'
+      'background': 'white'
     };
     for (k in style) {
       v = style[k];
       Hatena.Star.Pallet.PALLET_STYLE += "" + k + ": " + v + "; ";
     }
-    Hatena.Star.NameScreen.prototype._baseStyle = {
-      color: '#000',
-      position: 'absolute',
-      display: 'none',
-      zIndex: 10002,
-      left: 0,
-      top: 0,
-      backgroundColor: '#fff',
-      border: '1px solid #bbb'
+    return Hatena.Star.AddButton.prototype.showColorPallet = function(e) {
+      var pos;
+      this.clearSelectedColorTimer();
+      if (!this.pallet) {
+        this.pallet = new Hatena.Star.Pallet();
+      }
+      pos = Ten.Geometry.getElementPosition(this.img);
+      if (Ten.Browser.isFirefox || Ten.Browser.isOpera) {
+        pos.y += 40;
+        pos.x += 6;
+      } else {
+        pos.x += 2;
+        pos.y += 36;
+      }
+      return this.pallet.showPallet(pos, this);
     };
-    return delete Ten.SubWindow._baseStyle.backgroundColor;
   };
   bindEvents = function() {
     $(document.body).bind('DOMNodeInserted', function() {

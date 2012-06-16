@@ -73,23 +73,22 @@ do ->
       '-o-transform': 'scale(2.0)'
       '-o-transform-origin': '0% 0%'
       'background': 'white'
-      'margin-top': '22px'
-      'margin-left': '2px'
 
     for k, v of style
       Hatena.Star.Pallet.PALLET_STYLE += "#{k}: #{v}; "
 
-    Hatena.Star.NameScreen.prototype._baseStyle =
-        color: '#000'
-        position: 'absolute'
-        display: 'none'
-        zIndex: 10002
-        left: 0
-        top: 0
-        backgroundColor: '#fff'
-        border: '1px solid #bbb'
-
-    delete Ten.SubWindow._baseStyle.backgroundColor
+    # pos.x, yを増やしてる
+    Hatena.Star.AddButton.prototype.showColorPallet = (e) ->
+      @clearSelectedColorTimer()
+      @pallet = new Hatena.Star.Pallet() unless @pallet
+      pos = Ten.Geometry.getElementPosition @img
+      if Ten.Browser.isFirefox || Ten.Browser.isOpera
+        pos.y += 40
+        pos.x += 6
+      else
+        pos.x += 2
+        pos.y += 36
+      @pallet.showPallet(pos, @)
 
   bindEvents = ->
     $(document.body).bind 'DOMNodeInserted', ->

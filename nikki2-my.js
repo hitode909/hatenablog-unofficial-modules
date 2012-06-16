@@ -189,6 +189,9 @@ appendEntry = function(entry) {
   entry = $(entry);
   uuid = entry.attr('data-uuid');
   entry_created = new Date(entry.find('time').attr('datetime'));
+  entry.find('header .date a').attr({
+    href: entry.find('.entry-footer-time a').attr('href')
+  });
   title = entry.find('h1.entry-title');
   if (title.text() === '■') {
     title.css({
@@ -374,32 +377,14 @@ main = function() {
   module_dummy = $('<div>').addClass('hatena-module').addClass('hatena-module-profile');
   $('.hatena-follow-button-box').appendTo(module_dummy);
   module_dummy.appendTo($('#blog-title-inner'));
-  $('body').delegate('.entry-footer-time a, h1.entry-title a', 'click', function(event) {
+  $('body').delegate('#blog-title a, header.entry-header a, .entry-footer-time a, h1.entry-title a', 'click', function(event) {
     var path;
     if (!(history && history.pushState)) {
       return true;
     }
     path = extractPath(this.href);
     history.pushState(path, path, path);
-    later(function() {
-      return scrollByLocation();
-    });
-    return false;
-  });
-  $('body').delegate('article .date', 'click', function(event) {
-    $(this).parents('article').find('.entry-footer-time a').click();
-    return false;
-  });
-  $('body').delegate('#blog-title a', 'click', function(event) {
-    var path;
-    if (!(history && history.pushState)) {
-      return true;
-    }
-    path = extractPath(this.href);
-    history.pushState(path, path, path);
-    later(function() {
-      return scrollByLocation();
-    });
+    scrollByLocation();
     return false;
   });
   $(window).bind('popstate', function(event) {

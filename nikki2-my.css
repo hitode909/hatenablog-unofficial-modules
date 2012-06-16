@@ -215,6 +215,10 @@ float:right;
   margin:0;
 }
 
+.entry-footer-time {
+    display: none;
+}
+
 .entry-footer-time a{
     color:#666;
 }

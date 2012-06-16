@@ -345,24 +345,11 @@ main = ->
   module_dummy.appendTo($('#blog-title-inner'))
 
 
-  $('body').delegate '.entry-footer-time a, h1.entry-title a', 'click', (event) ->
+  $('body').delegate '#blog-title a, header.entry-header a, .entry-footer-time a, h1.entry-title a', 'click', (event) ->
     return true unless history && history.pushState
     path = extractPath(this.href)
     history.pushState(path, path, path)
-    later ->
-      scrollByLocation()
-    false
-
-  $('body').delegate 'article .date', 'click', (event) ->
-    $(this).parents('article').find('.entry-footer-time a').click()
-    false
-
-  $('body').delegate '#blog-title a', 'click', (event) ->
-    return true unless history && history.pushState
-    path = extractPath(this.href)
-    history.pushState(path, path, path)
-    later ->
-      scrollByLocation()
+    scrollByLocation()
     false
 
   $(window).bind 'popstate', (event) ->

@@ -1,7 +1,7 @@
 do ->
 
   user_icon = (name) ->
-    "http://www.st-hatena.com/users/#{encodeURI(name.slice(0, 2))}/#{encodeURI(name)}/profile_l.gif"
+    "http://www.hatena.ne.jp/users/#{encodeURI(name.slice(0, 2))}/#{encodeURI(name)}/profile.gif"
 
   throttle = (fn, delay) ->
     timer = null

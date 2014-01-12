@@ -49,6 +49,7 @@
         rokuyou = res.rokuyou_text;
         $rokuyou = $('<span>');
         $rokuyou.addClass('rokuyou');
+        $rokuyou.addClass("rokujyou-" + rokuyou);
         $rokuyou.text(rokuyou);
         return $article.find('.date a').append($rokuyou);
       });

@@ -44,6 +44,7 @@ $ ->
 
       $rokuyou = $ '<span>'
       $rokuyou.addClass 'rokuyou'
+      $rokuyou.addClass "rokujyou-#{ rokuyou }"
       $rokuyou.text rokuyou
       $article.find('.date a').append $rokuyou
 

@@ -7,7 +7,7 @@
 以下をコピーして デザイン編集 → カスタマイズ → フッタHTML に貼り付け
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="https://rawgithub.com/hitode909/hatenablog-unofficial-modules/master/rokuyo.js"></script>
+<script src="http://hitode909.github.io/hatenablog-unofficial-modules/rokuyo.js"></script>
 
 旧暦を取得するWeb APIを利用しています．
 - http://api.sekido.info/qreki?output=usage

@@ -335,7 +335,7 @@ perlin noiseの生成に https://github.com/josephg/noisejs を使っていま�
             var $imgs = $('.entry-content img:visible,.entry-content [data-entry-image]');
             if (!$imgs.length) return;
             var $img = $imgs[image_index++ % $imgs.length];
-            var src = $img.attr('src') || $img.attr('data-entry-image');
+            var src = $img.attr('data-entry-image') || $img.attr('src');
             if (!src) return false;
             $('body').css('background', 'url(' + src + ')');
             return true;

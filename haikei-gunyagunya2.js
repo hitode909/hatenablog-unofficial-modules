@@ -9,7 +9,7 @@
 以下をコピーして 詳細設定→head要素に貼り付け
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="http://hitode909.github.io/hatenablog-unofficial-modules/haikei-gunyagunya.js"></script>
+<script src="http://hitode909.github.io/hatenablog-unofficial-modules/haikei-gunyagunya2.js"></script>
 
 perlin noiseの生成に https://github.com/josephg/noisejs を使っています
 

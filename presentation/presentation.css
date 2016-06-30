@@ -1,0 +1,54 @@
+@charset "UTF-8";
+
+#presentation-container {
+    background: white;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+#presentation-container .entry-content {
+    font-family: "Hiragino Sans","ヒラギノ角ゴシック";
+    font-weight: 900;
+    color: black;
+    font-size: calc((100% + 0.7vw) * 2);
+    padding: 0.5em;
+    padding-bottom: 4em;
+}
+
+#presentation-container .entry-content h1,h2,h3 {
+    text-align: center;
+}
+
+#presentation-container .entry-content h1,h2,h3,h4,h5,h6 {
+    font-weight: 900;
+}
+
+#presentation-container .entry-content ul,ol {
+    margin-left: 1em;
+}
+
+#presentation-container .entry-content blockquote,pre {
+    font-size: 80%;
+}
+
+#presentation-container .entry-content img.hatena-fotolife,iframe.embed-card, iframe.instagram-iframe {
+    display: block;
+    margin: 1em auto;
+}
+
+#presentation-container .entry-content pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow: auto;
+}
+
+.presentation-title, .presentation-pager {
+    font-size:18px;
+}
+
+.presentation-pager {
+    float: right;
+}

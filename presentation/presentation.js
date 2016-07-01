@@ -134,12 +134,12 @@ Hatena.Blog.Presentation = {
 };
 
 $(document).ready(function () {
-    if (Hatena.Blog.Presentation.supported()) return;
+    if (!Hatena.Blog.Presentation.supported()) return;
     Hatena.Blog.Presentation.init();
     Hatena.Blog.Presentation.notifyHash(location.hash);
 });
 
 window.onhashchange = function () {
-    if (Hatena.Blog.Presentation.supported()) return;
+    if (!Hatena.Blog.Presentation.supported()) return;
     Hatena.Blog.Presentation.notifyHash(location.hash);
 };

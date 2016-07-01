@@ -134,7 +134,10 @@ Hatena.Blog.Presentation = {
 };
 
 $(document).ready(function () {
-    if (!Hatena.Blog.Presentation.supported()) return;
+    if (!Hatena.Blog.Presentation.supported()) {
+        $('.presentation-controller').remove();
+        return;
+    }
     Hatena.Blog.Presentation.init();
     Hatena.Blog.Presentation.notifyHash(location.hash);
 });

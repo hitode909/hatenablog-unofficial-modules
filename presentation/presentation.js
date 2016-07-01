@@ -10,7 +10,6 @@ Hatena.Blog.Presentation = {
     slides:[],
     currentIndex:0,
     init: function () {
-        if (!this.supported()) return;
         $('.entry-date').append('<a href="#presentation">プレゼンテーション</a>');
     },
     supported: function () {
@@ -18,7 +17,6 @@ Hatena.Blog.Presentation = {
     },
     start: function () {
         if (this.started) return;
-        if (!this.supported()) return;
         this.started = true;
 
         // h3レベルの見出しを見つけてスライドにする(markdownモードだとh1とか使えるからうまくいかなそう)
@@ -136,10 +134,12 @@ Hatena.Blog.Presentation = {
 };
 
 $(document).ready(function () {
+    if (Hatena.Blog.Presentation.supported()) return;
     Hatena.Blog.Presentation.init();
     Hatena.Blog.Presentation.notifyHash(location.hash);
 });
 
 window.onhashchange = function () {
+    if (Hatena.Blog.Presentation.supported()) return;
     Hatena.Blog.Presentation.notifyHash(location.hash);
 };

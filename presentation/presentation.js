@@ -120,7 +120,7 @@ Hatena.Blog.Presentation = {
     exit: function() {
         location.hash = '';
         location.reload();
-    }
+    },
     notifyHash: function(hash) {
         if (this.hash === hash) return;
         this.hash = hash;

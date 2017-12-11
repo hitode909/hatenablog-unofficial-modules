@@ -6,7 +6,7 @@
 
 - 以下をコピーして デザイン編集 → カスタマイズ → フッタHTML に貼り付け
 
-<script async defer src="http://hitode909.github.io/hatenablog-unofficial-modules/speech.js"></script>
+<script async defer src="https://hitode909.github.io/hatenablog-unofficial-modules/speech.js"></script>
 
 ** 注意
 - Web Speech API非対応のブラウザでは音読できません

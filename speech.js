@@ -15,6 +15,11 @@
 
 function speak (e) {
   speechSynthesis.cancel();
+
+  // Chromeで初回実行時にspeechSynthesis.pause()できない問題を解消するため、空文字で一度speechSynthesis.speak()しておく
+  var empty_utter = new SpeechSynthesisUtterance('');
+  speechSynthesis.speak(empty_utter);
+
   var utter = new SpeechSynthesisUtterance(this.body);
   speechSynthesis.speak(utter);
   e.currentTarget.textContent = '停止する';

@@ -21,7 +21,7 @@
     button.className = 'btn';
     button.textContent = '音読する';
     button.style = 'float: right';
-    article.querySelector('header').appendChild(button);
+    article.querySelector('header.entry').appendChild(button);
     button.addEventListener('click', function () {
       var synth = window.speechSynthesis;
       var body = article.querySelector('.entry-content').textContent;

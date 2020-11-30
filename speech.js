@@ -13,20 +13,39 @@
 
 */
 
+function speak (e) {
+  speechSynthesis.cancel();
+  var utter = new SpeechSynthesisUtterance(this.body);
+  speechSynthesis.speak(utter);
+  e.currentTarget.textContent = '停止する';
+  e.currentTarget.removeEventListener('click', this);
+  e.currentTarget.addEventListener('click', pause);
+}
+
+function pause (e) {
+  speechSynthesis.pause();
+  e.currentTarget.textContent = '再開する';
+  e.currentTarget.removeEventListener('click', pause);
+  e.currentTarget.addEventListener('click', resume);
+}
+
+function resume (e) {
+  speechSynthesis.resume();
+  e.currentTarget.textContent = '停止する';
+  e.currentTarget.removeEventListener('click', resume);
+  e.currentTarget.addEventListener('click', pause);
+}
+
 (function () {
   if (!window.speechSynthesis) return;
-  document.querySelectorAll('article').forEach(function (article) {
+  document.querySelectorAll('article.entry').forEach(function (article) {
     var button = document.createElement('button');
     button.type = 'button';
     button.className = 'btn';
     button.textContent = '音読する';
     button.style = 'float: right';
-    article.querySelector('header.entry').appendChild(button);
-    button.addEventListener('click', function () {
-      var synth = window.speechSynthesis;
-      var body = article.querySelector('.entry-content').textContent;
-      var utter = new SpeechSynthesisUtterance(body);
-      synth.speak(utter);
-    });
+    article.querySelector('header').appendChild(button);
+    var body = article.querySelector('.entry-content').textContent;
+    button.addEventListener('click', { handleEvent: speak, body: body });
   });
 })();

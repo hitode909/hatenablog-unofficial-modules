@@ -13,20 +13,44 @@
 
 */
 
+function speak (e) {
+  speechSynthesis.cancel();
+
+  // Chromeで初回実行時にspeechSynthesis.pause()できない問題を解消するため、空文字で一度speechSynthesis.speak()しておく
+  var empty_utter = new SpeechSynthesisUtterance('');
+  speechSynthesis.speak(empty_utter);
+
+  var utter = new SpeechSynthesisUtterance(this.body);
+  speechSynthesis.speak(utter);
+  e.currentTarget.textContent = '停止する';
+  e.currentTarget.removeEventListener('click', this);
+  e.currentTarget.addEventListener('click', pause);
+}
+
+function pause (e) {
+  speechSynthesis.pause();
+  e.currentTarget.textContent = '再開する';
+  e.currentTarget.removeEventListener('click', pause);
+  e.currentTarget.addEventListener('click', resume);
+}
+
+function resume (e) {
+  speechSynthesis.resume();
+  e.currentTarget.textContent = '停止する';
+  e.currentTarget.removeEventListener('click', resume);
+  e.currentTarget.addEventListener('click', pause);
+}
+
 (function () {
   if (!window.speechSynthesis) return;
-  document.querySelectorAll('article').forEach(function (article) {
+  document.querySelectorAll('article.entry').forEach(function (article) {
     var button = document.createElement('button');
     button.type = 'button';
     button.className = 'btn';
     button.textContent = '音読する';
     button.style = 'float: right';
     article.querySelector('header').appendChild(button);
-    button.addEventListener('click', function () {
-      var synth = window.speechSynthesis;
-      var body = article.querySelector('.entry-content').textContent;
-      var utter = new SpeechSynthesisUtterance(body);
-      synth.speak(utter);
-    });
+    var body = article.querySelector('.entry-content').textContent;
+    button.addEventListener('click', { handleEvent: speak, body: body });
   });
 })();

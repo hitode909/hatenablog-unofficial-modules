@@ -89,7 +89,9 @@
     const style = document.createElement('style');
     style.textContent =
       '.ai-anthology-action { color: #555; text-decoration: none; cursor: pointer; padding: 0.2em 0.5em; border-radius: 4px; margin-left: 0.8em; }' +
-      '.ai-anthology-action:hover { background: rgba(128,128,128,0.25); text-decoration: none; }';
+      '.ai-anthology-action:hover { background: rgba(128,128,128,0.25); text-decoration: none; }' +
+      '.ai-anthology-caret { display: inline-block; width: 2px; height: 1em; margin-left: 1px; vertical-align: text-bottom; background: #444; animation: ai-anthology-caret-pulse 1.2s ease-in-out infinite alternate; }' +
+      '@keyframes ai-anthology-caret-pulse { from { background: #444; } to { background: #ccc; } }';
     document.head.appendChild(style);
 
     // モデルのセッションはページで1つだけ作り、生成のたびに clone して使う
@@ -128,6 +130,15 @@
       card.style.cssText = 'padding:0.8em;background:rgba(128,128,128,0.1);border-radius:4px;display:none;';
       const output = document.createElement('pre');
       output.style.cssText = 'white-space:pre-wrap;margin:0;font-family:inherit;';
+      // キャレットを文末に保つため、テキストはテキストノードで管理する
+      // （textContent への代入はキャレット要素ごと消してしまう）
+      const textNode = document.createTextNode('');
+      const caret = document.createElement('span');
+      caret.className = 'ai-anthology-caret';
+      caret.style.display = 'none';
+      output.appendChild(textNode);
+      output.appendChild(caret);
+      const setText = (t) => { textNode.data = t; };
       const actions = document.createElement('div');
       actions.style.cssText = 'text-align:right;margin-top:0.5em;font-size:0.85em;visibility:hidden;';
       const retryLink = document.createElement('a');
@@ -158,29 +169,30 @@
         writeButton.style.display = 'none';
         card.style.display = 'block';
         actions.style.visibility = 'hidden';
+        caret.style.display = '';
         let session = null;
         try {
           const availability = await LanguageModel.availability();
           if (availability === 'unavailable') {
-            output.textContent = 'このブラウザ・端末ではオンデバイスAIが利用できません。デスクトップ版Chromeの最新版でお試しください。';
+            setText('このブラウザ・端末ではオンデバイスAIが利用できません。デスクトップ版Chromeの最新版でお試しください。');
             return;
           }
-          output.textContent = availability === 'available' ? '準備中…' : 'AIモデルをダウンロード中…（初回のみ）';
+          setText(availability === 'available' ? '準備中…' : 'AIモデルをダウンロード中…（初回のみ）');
           const base = await ensureBase((loaded) => {
-            output.textContent = `AIモデルをダウンロード中… ${Math.round(loaded * 100)}%`;
+            setText(`AIモデルをダウンロード中… ${Math.round(loaded * 100)}%`);
           });
           session = await base.clone();
-          output.textContent = '考え中…';
+          setText('考え中…');
           const text = article.innerText.slice(0, MAX_INPUT_CHARS);
           const prompt = buildPrompt();
           const stream = session.promptStreaming(`以下は記事の本文です。\n---\n${text}\n---\n${prompt}${PLAIN_TEXT_RULE}`);
-          output.textContent = '';
+          setText('');
           for await (const chunk of stream) {
-            output.textContent += chunk;
+            textNode.data += chunk;
           }
           // 指示しても混ざることがあるマークダウン装飾を除去する
-          const result = output.textContent.trim().replace(/\*\*/g, '').replace(/^#+\s*/gm, '');
-          output.textContent = result;
+          const result = textNode.data.trim().replace(/\*\*/g, '').replace(/^#+\s*/gm, '');
+          setText(result);
           tweetLink.href = 'https://x.com/intent/post?' + new URLSearchParams({
             text: result,
             url: permalink,
@@ -188,10 +200,11 @@
           tweetLink.style.display = '';
           actions.style.visibility = 'visible';
         } catch (e) {
-          output.textContent = `エラー: ${e.message}`;
+          setText(`エラー: ${e.message}`);
           tweetLink.style.display = 'none';
           actions.style.visibility = 'visible';
         } finally {
+          caret.style.display = 'none';
           session?.destroy();
           running = false;
         }
